@@ -1,0 +1,8 @@
+expr -> term rest
+rest -> + term { print(‘+’) } rest
+rest -> - term { print(‘-’) } rest
+rest -> ε
+term -> 0 { print(‘0’) }
+term -> 1 { print(‘1’) }
+…
+term -> 9 { print(‘9’) }
