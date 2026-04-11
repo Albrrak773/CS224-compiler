@@ -1,6 +1,10 @@
+'''
+    Phase 1: A compiler that translates from infix input to postfix output
+'''
 def main():
-    print("Hello from cs224-compiler-project!")
-    print_input()
+    global lookahead
+    lookahead = lexan()
+    expr()
 
 def print_input():
     global lookahead
@@ -14,7 +18,7 @@ lookahead = ''
 
 def lexan():
     global input_index, input_text
-    if input_index != len(input_text):
+    if input_index < len(input_text):
         t = input_text[input_index]
         input_index += 1
         return t
@@ -32,12 +36,24 @@ def match(t):
         error()
 
 def term():
-    pass
+    if lookahead.isdigit():
+        print(lookahead, end='')
+        match(lookahead)
+
 def reset():
     if lookahead == "+":
-        pass
-    if lookahead == "-":
-        pass
+        match(lookahead)
+        term()
+        print('+', end='')
+        reset()
+    elif lookahead == "-":
+        match(lookahead)
+        term()
+        print('-', end='')
+        reset()
+    # else:
+    #     error()
+
 
 def expr():
     term()
