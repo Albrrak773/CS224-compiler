@@ -8,17 +8,21 @@
 '''
 
 # ── Global State ──────────────────────────────────────────────
-input_text = "4+3-5+1"
+input_text = "4  +          3\n-5+1"
 input_index = 0
 lookahead = ''
 
 # ── Lexer ─────────────────────────────────────────────────────
 def lexan():
     global input_index, input_text
+    # input_text = input_text.replace(" ", "").replace("\t", "").replace("\n", "")
     if input_index < len(input_text):
-        t = input_text[input_index]
-        input_index += 1
-        return t
+        while True:
+            t = input_text[input_index]
+            input_index += 1
+            if t == ' ' or t == '\t' or t == '\n':
+                continue
+            return t
     else:
         return 'EOF'
 
@@ -42,29 +46,37 @@ def term():
         match(lookahead)
 
 # rest -> + term rest | - term rest | ε
-# (called "reset" here — it handles everything after the first term)
-def reset():
+def rest():
     if lookahead == "+":
         match(lookahead)
         term()
         print('+', end='')
-        reset()
+        rest()
     elif lookahead == "-":
         match(lookahead)
         term()
         print('-', end='')
-        reset()
+        rest()
 
 # expr -> term rest
 def expr():
     term()
-    reset()
+    rest()
 
 # ── Entry Point ───────────────────────────────────────────────
 def main():
+    frontend()
+    backend()
+
+def frontend():
+    parser()
+
+def parser():
     global lookahead
     lookahead = lexan()
     expr()
 
+def backend():
+    pass
 if __name__ == "__main__":
     main()
