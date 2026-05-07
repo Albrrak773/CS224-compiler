@@ -1,5 +1,6 @@
 '''
     Phase 1: A compiler that translates from infix input to postfix output
+    Phase 2: clear whitespace and newlines from the input
 
     Grammar:
         expr  -> term rest
@@ -8,7 +9,7 @@
 '''
 
 # ── Global State ──────────────────────────────────────────────
-input_text = "4  +          3\n-5+1"
+input_text = "4  +    3      3\n-5+1"
 input_index = 0
 lookahead = ''
 
@@ -27,15 +28,14 @@ def lexan():
         return 'EOF'
 
 # ── Utilities ─────────────────────────────────────────────────
-def error():
-    print("syntax error")
+def error(reason: str | None = None):
+    print(f"\n\033[31msyntax error\033[0m\n{reason}")
+    exit(1)
 
 def match(t):
     global lookahead
     if lookahead == t:
         lookahead = lexan()
-    else:
-        error()
 
 # ── Grammar Rules ─────────────────────────────────────────────
 
@@ -44,6 +44,8 @@ def term():
     if lookahead.isdigit():
         print(lookahead, end='')
         match(lookahead)
+    else:
+        error(f"Expected '{lookahead}' to be digit")
 
 # rest -> + term rest | - term rest | ε
 def rest():
@@ -57,6 +59,11 @@ def rest():
         term()
         print('-', end='')
         rest()
+    elif lookahead == "EOF":
+        match(lookahead)
+        print("\032[31mEOF\033[0m")
+    else:
+        error(f"Expected '{lookahead}' to be one of: +, - or EOF")
 
 # expr -> term rest
 def expr():
