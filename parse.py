@@ -4,15 +4,28 @@ Phase 2: clear whitespace and newlines from the input.
 Phase 3: Allow Numbers instead of just single digits.
 Phase 4: input files and Intermediate Language.
 Grammar:
-    expr  -> term rest
-    rest  -> + term rest | - term rest | ε
-    term  -> NUM { print(NUM.value)  }
+    start -> list eof
+    list -> expr ; list | ε 
+    expr -> term moreterms
+    moreterms -> + term { print('+') } moreterms
+           | - term { print('-') } moreterms
+           | ε
+    term -> factor morefactors
+    morefactors -> * factor { print('*') } morefactors
+             | / factor { print('/') } morefactors
+             | div factor { print('DIV') } morefactors
+             | mod factor { print('MOD') } morefactors
+             | ε
+    factor -> (expr)
+      | id { print(id.lexeme) }
+      | num { print(num.value) }
 """
 
 import lexer
 from lexer import lexan
 from error import error
 from emitter import emit
+from symbol import intialize_symbol_table
 
 lookahead = ""
 
@@ -71,5 +84,6 @@ def expr():
 
 def parser():
     global lookahead
+    intialize_symbol_table()
     lookahead = lexan()
     expr()

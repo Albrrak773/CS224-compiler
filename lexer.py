@@ -1,4 +1,6 @@
 import re
+from symbol import lookup, insert
+import symbol
 
 input_file = open("file.exp", "r", encoding="utf-8")
 input_text_raw = input_file.read()
@@ -18,6 +20,12 @@ def lexan():
             global tokenval
             tokenval = int(t)
             return "NUM"
+        elif t.isalnum() and t[0].isalpha(): # e.g asdf and not 123abc
+            p = lookup(t)
+            if p is None:
+                p = insert(t, "ID")
+            tokenval = p
+            return symbol.symbol_table[p].token
         return t
     else:
         return "EOF"
