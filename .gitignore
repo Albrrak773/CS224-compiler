@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+
+# compiler files
+file.il
+file.obj
+file.err
