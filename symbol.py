@@ -3,7 +3,9 @@ class entry:
         self.string = string
         self.token = token
 
+
 symbol_table: list[entry] = []
+
 
 def lookup(string):
     for i, symbol in enumerate(symbol_table):
@@ -11,14 +13,24 @@ def lookup(string):
             return i
     return None
 
-def insert(string, token):  
+
+def insert(string, token):
     symbol_table.append(entry(string, token))
     return len(symbol_table) - 1
 
 
-keywords = [entry('div', 'DIV'), entry('mod', 'MOD')]
+keywords = [
+    entry("div", "DIV"),
+    entry("mod", "MOD"),
+    entry("if", "if"),
+    entry("then", "then"),
+    entry("while", "while"),
+    entry("do", "do"),
+    entry("begin", "begin"),
+    entry("end", "end"),
+]
+
 
 def intialize_symbol_table():
     for keyword in keywords:
         insert(keyword.string, keyword.token)
-

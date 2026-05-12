@@ -65,6 +65,26 @@ def emit(token: str, value: str | None = None):
             print_and_write(symbol.symbol_table[int(value)].string, colors.PURPLE)
             push_il(symbol.symbol_table[int(value)].string)
 
+        case 'if':
+            print_and_write('if', colors.RED)
+            il_file.write("pop r2\ncmp r2, 0\nbe else\n")
+
+        case 'then':
+            print_and_write('then', colors.RED)
+            il_file.write("else\n")
+
+        case 'w1':
+            print_and_write('while', colors.RED)
+            il_file.write("while\n")
+
+        case 'w2':
+            print_and_write('while', colors.RED)
+            il_file.write("pop r2\ncomp r2,0\nbe endwhile\n")
+
+        case 'w3':
+            print_and_write('while', colors.RED)
+            il_file.write("b while\nendwhile\n")
+
         case "EOF":
             print_and_write("EOF", colors.RED)
         case _:
