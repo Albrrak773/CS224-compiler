@@ -6,8 +6,8 @@ class entry:
 symbol_table: list[entry] = []
 
 def lookup(string):
-    for i in range(len(symbol_table)):
-        if symbol_table[i].string == string:
+    for i, symbol in enumerate(symbol_table):
+        if symbol.string == string:
             return i
     return None
 

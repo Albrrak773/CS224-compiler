@@ -39,44 +39,91 @@ def match(t):
 # region ─── Grammar Rules ─────────────────────────────────────────────
 
 
-def term():
-    """
-    term -> NUM { print(NUM.value) }
-    """
-    if lookahead == "NUM":
-        emit("NUM", str(lexer.tokenval))
-        match(lookahead)
-    else:
-        error(f"Expected '{lookahead}' to be a NUM")
 
 
-def rest():
+def moreterms():
     """
-    rest -> + term  { print('+') } rest
-    rest -> - term { print('-') } rest
-    rest -> ε
+    moreterms -> + term { print('+') } moreterms
+    moreterms -> - term { print('-') } moreterms
+    moreterms -> ε
     """
     if lookahead == "+":
-        match(lookahead)
+        match("+")
         term()
         emit("+")
-        rest()
+        moreterms()
     elif lookahead == "-":
-        match(lookahead)
+        match("-")
         term()
         emit("-")
-        rest()
-    elif lookahead == "EOF":
-        match(lookahead)
-        emit("EOF")  # not part of the grammar
-    else:
-        error(f"Expected '{lookahead}' to be one of: +, - or EOF")
+        moreterms()
+    # ε means we do nothing. we still raise the correct error in factor()
+    # else:
+    #     error(f"Expected '{lookahead}' to be one of: +, - or EOF")
 
 
+def term():
+    """
+    term -> factor morefactors
+    """
+    factor()
+    morefactors()
 # expr -> term rest
+
+def factor():
+    """
+    factor -> (expr)
+    factor -> id { print(id.lexeme) }
+    factor -> num { print(num.value) }
+    """
+    if lookahead == "(":
+        match("(")
+        expr()
+        match(")")
+    elif lookahead == "NUM":
+        emit("NUM", str(lexer.tokenval))
+        match("NUM")
+    elif lookahead == "ID":
+        emit("ID", str(lexer.tokenval))
+        match("ID")
+    else:
+        error(f"Expected '{lookahead}' to be one of: (, NUM or ID")
+
+def morefactors():
+    """
+    morefactors -> * factor { print('*') } morefactors
+    morefactors -> / factor { print('/') } morefactors
+    morefactors -> div factor { print('DIV') } morefactors
+    morefactors -> mod factor { print('MOD') } morefactors
+    morefactors -> ε
+    """
+    if lookahead == "*":
+        match("*")
+        factor()
+        emit("*")
+        morefactors()
+    elif lookahead == "/":
+        match("/")
+        factor()
+        emit("/")
+        morefactors()
+    elif lookahead == "DIV":
+        match("DIV")
+        factor()
+        emit("DIV",)
+        morefactors()
+    elif lookahead == "MOD":
+        match("MOD")
+        factor()
+        emit("MOD",)
+        morefactors()
+    # ε means we do nothing. we still raise the correct error in factor()
+    # else:
+    #     error(f"Expected '{lookahead}' to be one of: *, /, DIV, MOD or EOF")
+    
 def expr():
     term()
-    rest()
+    moreterms()
 
 
 # endregion
@@ -86,4 +133,6 @@ def parser():
     global lookahead
     intialize_symbol_table()
     lookahead = lexan()
-    expr()
+    while lookahead != "EOF":
+        expr()
+        match(";")
