@@ -28,6 +28,8 @@ keywords = [
     entry("do", "do"),
     entry("begin", "begin"),
     entry("end", "end"),
+    entry("loop", "loop"),
+    entry("to", "to")
 ]
 
 

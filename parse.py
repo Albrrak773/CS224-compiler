@@ -8,6 +8,7 @@ Grammar:
     stmt -> id = expr
     stmt -> if (expr) then stmt
     stmt -> while (expr) do stmt
+    stmt -> loop {loop1} CS to (exp) {loop2}
     stmt -> begin CS end
     CS -> stmt ; CS | ε
     expr -> term moreterms
@@ -58,6 +59,15 @@ def stmt():
         match("=")
         expr()
         il_file.write(f"pop {id}\n")
+    elif lookahead == "loop":
+        match("loop")
+        il_file.write("loop:\n")
+        CS()
+        match("to")
+        match("(")
+        expr()
+        match(")")
+        il_file.write("pop r2\ncmp r2,0\nbne loop\n1")
     elif lookahead == "if":
         match("if")
         match("(")
@@ -96,9 +106,12 @@ def CS():
     # ε means we do nothing. we still raise the correct error in stmt()
     # else:
     #     error(f"Expected '{lookahead}' to be one of: ID, if, while, begin or EOF")
-    while lookahead != 'end':
-        stmt()
-        match(";")
+    # while lookahead in ["ID", "if", "while", "begin"]:
+    #     stmt()
+    #     match(";")
+    stmt()
+    match(";")
+    CS()
 
 
 
