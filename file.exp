@@ -1,4 +1,17 @@
+void myFunc ()
 begin
-while (x-2) do
-x = x - 1;
-end
+    x = 10 ;
+end;
+
+void omar()
+begin
+    z = 3;
+    k = z + 5;
+end;
+void main()
+begin
+    myFunc () ;
+    y = x + 5 ;
+    omar();
+    y = y + k;
+end.

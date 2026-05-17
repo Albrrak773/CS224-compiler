@@ -4,8 +4,11 @@ Phase 2: clear whitespace and newlines from the input.
 Phase 3: Allow Numbers instead of just single digits.
 Phase 4: input files and Intermediate Language.
 Grammar:
-    Start -> stmt eof
-    stmt -> id = expr
+    prog -> FuncDec MainFunc eof
+    FuncDec -> void { print('id.lexeme:\n') } ID() begin CS end; { print('ret\n') } FuncDec | ε
+    MainFunc -> void main { print('main:\n') } () begin CS end.
+    stmt -> id = expr { print('pop id.lexeme') }
+    stmt -> id()
     stmt -> if (expr) then stmt
     stmt -> while (expr) do stmt
     stmt -> begin CS end
@@ -44,20 +47,64 @@ def match(t):
 # region ─── Grammar Rules ─────────────────────────────────────────────
 
 
+def FuncDec():
+    # FuncDec -> void { print('id.lexeme:\n') } ID() begin CS end; { print('ret\n') } FuncDec
+    # FuncDec -> ε
+    if lookahead == "ID":
+        match("ID")
+        emit("l1", str(lexer.tokenval))
+        match("(")
+        match(")")
+        match("begin")
+        CS()
+        match("end")
+        match(";")
+        emit("l2")
+
+def MainFunc():
+    # MainFunc -> void main { print('main:\n') } () begin CS end. { print("exit") }
+    if lookahead == "MAIN":
+        match("MAIN")
+        emit("main")
+        match("(")
+        match(")")
+        match("begin")
+        CS()
+        match("end")
+        match(".")
+        il_file.write("exit\n")
+    else:
+        error(f"expected {lookahead} to be main")
+        
+
+def restID():
+    """
+    restID -> = expr {printf(“pop %s”, id.lexeme)}
+    restID -> () {print call id.lexeme}
+    """
+    if lookahead == "=":
+        id = lexer.tokenval
+        match("=")
+        expr()
+        il_file.write(f"pop {symbol.symbol_table[int(id)].string}\n")
+    elif lookahead == "(":
+        id = lexer.tokenval
+        match("(")
+        match(")")
+        emit("IDC", str(id))
+
+
 def stmt():
     """
-    stmt -> id = expr
+    stmt -> id = expr { print('id.lex') }
+    stmt -> id()
     stmt -> if (expr) then stmt
     stmt -> while (expr) do stmt
     stmt -> begin CS end
     """
-
     if lookahead == "ID":
         match("ID")
-        id = symbol.symbol_table[int(lexer.tokenval)].string
-        match("=")
-        expr()
-        il_file.write(f"pop {id}\n")
+        restID()
     elif lookahead == "if":
         match("if")
         match("(")
@@ -203,4 +250,16 @@ def parser():
     global lookahead
     intialize_symbol_table()
     lookahead = lexan()
-    stmt()
+    print(f"lookahead: {lookahead}")
+    while lookahead == "VOID":
+        match("VOID")
+        if lookahead == 'ID':
+            FuncDec()
+        elif lookahead == 'MAIN':
+            MainFunc()
+            match("EOF")
+            return
+        else:
+            error(f"expected 'main' or function defention, got {lookahead}")
+
+    error("expected file to contain 'main' function")

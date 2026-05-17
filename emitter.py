@@ -1,5 +1,6 @@
 import enum
 import symbol
+
 output_file = open("file.obj", "w", encoding="utf-8")
 il_file = open("file.il", "w", encoding="utf-8")
 
@@ -64,6 +65,11 @@ def emit(token: str, value: str | None = None):
                 raise Exception("ID token requires a value")
             print_and_write(symbol.symbol_table[int(value)].string, colors.PURPLE)
             push_il(symbol.symbol_table[int(value)].string)
+        
+        case "IDC":
+            if value is None:
+                raise Exception("ID token requires a value")
+            il_file.write(f"call {symbol.symbol_table[int(value)].string}\n")
 
         case 'if':
             print_and_write('if', colors.RED)
@@ -84,6 +90,14 @@ def emit(token: str, value: str | None = None):
         case 'w3':
             print_and_write('while', colors.RED)
             il_file.write("b while\nendwhile\n")
+        case 'l1':
+            if value is None:
+                raise Exception("ID token requires a value")
+            il_file.write(f"{symbol.symbol_table[int(value)].string}:\n")
+        case "l2":
+            il_file.write("ret\n")
+        case "main":
+            il_file.write("main:\n")
 
         case "EOF":
             print_and_write("EOF", colors.RED)
